@@ -37,4 +37,40 @@ public class BookEventHandler {
             throw e;
         }
     }
+
+    @EventHandler
+    public void on(BookUpdateEvent event) {
+        log.info("Received BookUpdateEvent: {}", event);
+        try {
+            Book book = bookRepository.findById(event.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Book not found with ID: " + event.getId()));
+
+            book.setName(event.getName());
+            book.setAuthor(event.getAuthor());
+            book.setIsReady(event.getIsReady());
+            log.info("Updating book in database: {}", book);
+            Book updatedBook = bookRepository.save(book);
+            log.info("Book updated successfully with ID: {}", updatedBook.getId());
+
+        } catch (Exception e) {
+            log.error("Error updating book in database: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @EventHandler
+    public void on(BookDeleteEvent event) {
+        log.info("Received BookDeleteEvent: {}", event);
+        try {
+            if (!bookRepository.existsById(event.getId())) {
+                log.warn("Book with ID {} does not exist, skipping delete", event.getId());
+                return;
+            }
+            bookRepository.deleteById(event.getId());
+            log.info("Book deleted successfully with ID: {}", event.getId());
+        } catch (Exception e) {
+            log.error("Error deleting book from database: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
 }

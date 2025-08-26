@@ -45,9 +45,15 @@ public class BookEventHandler {
             Book book = bookRepository.findById(event.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Book not found with ID: " + event.getId()));
 
-            book.setName(event.getName());
-            book.setAuthor(event.getAuthor());
-            book.setIsReady(event.getIsReady());
+            if(event.getName() != null) {
+                book.setName(event.getName());
+            }
+            if(event.getAuthor() != null) {
+                book.setAuthor(event.getAuthor());
+            }
+            if(event.getIsReady() != null) {
+                book.setIsReady(event.getIsReady());
+            }
             log.info("Updating book in database: {}", book);
             Book updatedBook = bookRepository.save(book);
             log.info("Book updated successfully with ID: {}", updatedBook.getId());

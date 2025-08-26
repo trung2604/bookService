@@ -25,10 +25,11 @@ public class BookCommandController {
         try {
             String bookName = bookRequest.getName();
             String bookAuthor = bookRequest.getAuthor();
-            CreateBookCommand createBookCommand = new CreateBookCommand(UUID.randomUUID().toString(), bookName, bookAuthor, true);
-            String result = commandGateway.sendAndWait(createBookCommand);
+            String bookId = UUID.randomUUID().toString();
+            CreateBookCommand createBookCommand = new CreateBookCommand(bookId, bookName, bookAuthor, true);
+            commandGateway.sendAndWait(createBookCommand);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.success("Create book successfully", result));
+                    .body(ApiResponse.success("Create book successfully", bookId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Failed to create book: " + e.getMessage()));
@@ -39,8 +40,8 @@ public class BookCommandController {
     public ResponseEntity<ApiResponse<String>> updateBook(@RequestBody BookRequest bookRequest, @PathVariable String bookId) {
         try {
             UpdateBookCommand updateBookCommand = new UpdateBookCommand(bookId, bookRequest.getName(), bookRequest.getAuthor(), bookRequest.getIsReady());
-            String result = commandGateway.sendAndWait(updateBookCommand);
-            return ResponseEntity.ok(ApiResponse.success("Update book successfully", result));
+            commandGateway.sendAndWait(updateBookCommand);
+            return ResponseEntity.ok(ApiResponse.success("Update book successfully", bookId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Failed to update book: " + e.getMessage()));
@@ -48,12 +49,11 @@ public class BookCommandController {
     }
 
     @DeleteMapping("/delete/{bookId}")
-    public ResponseEntity<ApiResponse<Void>> deleteBook(@PathVariable String bookId) {
+    public ResponseEntity<ApiResponse<String>> deleteBook(@PathVariable String bookId) {
         try {
             DeleteBookCommand deleteBookCommand = new DeleteBookCommand(bookId);
             commandGateway.sendAndWait(deleteBookCommand);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body(ApiResponse.success("Delete book successfully"));
+            return ResponseEntity.ok(ApiResponse.success("Delete book successfully", bookId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Failed to delete book: " + e.getMessage()));

@@ -32,7 +32,7 @@ public class BookProjection {
 
     @QueryHandler
     public BookResponse handle(GetBookByIdQuery query) {
-        Book book = bookRepository.findById(query.getId()).orElse(null);
+        Book book = bookRepository.findById(query.getId()).orElseThrow(() -> new IllegalArgumentException("Book not found with ID: " + query.getId()));
         BookResponse bookResponse = new BookResponse();
         if (book != null) {
             BeanUtils.copyProperties(book, bookResponse);
